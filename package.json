@@ -9,11 +9,11 @@
 
   "repository": {
     "type": "git",
-    "url": "git://github.com/hubot-scripts/hubot-pandora.git"
+    "url": "git://github.com/Justicelemon/hubot-pandora.git"
   },
 
   "bugs": {
-    "url": "https://github.com/hubot-scripts/hubot-pandora/issues"
+    "url": "https://github.com/Justicelemon/hubot-pandora/issues"
   },
 
   "dependencies": {
