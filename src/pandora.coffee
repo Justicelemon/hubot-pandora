@@ -5,7 +5,18 @@
 #   LIST_OF_ENV_VARS_TO_SET
 #
 # Commands:
-#   pandora help - to view all available commands, do not type the hubot's name 
+#   hubot pandora help - view a more verbose description all available commands
+#   hubot pandora ls <path> - to view all elements in path
+#   hubot pandora mkbox <path> - to create box in path
+#   hubot pandora mkcontent <path> - to create content in path
+#   hubot pandora rm <path> - remove box/content
+#   hubot pandora mv <src> <test> - move the box/content
+#   hubot pandora cp <src> <test> - copy the box/content
+#   hubot pandora open <path-to-content> - view information stored in content
+#   hubot pandora (intro|view|contact) <path> <string> - edits the specified attribute to the given string
+#   hubot pandora add <path-to-content> <string> - adds given string as an item to the given content
+#   hubot pandora edit <item #> <path-to-content> <string> - edits item
+#   hubot pandora remove <item #> <path-to-content> - removes given item, and changes all higher item numbers
 #
 # Notes:
 #   <optional notes required for the script>
@@ -67,9 +78,9 @@ class Pandora
       return "#{path} is not content"
     content = parentBox[end]
     resultStr = ""
-    resultStr += "\nDescription: #{content.___description}"
-    resultStr += "\nContact: #{content.___contact}"
-    resultStr += "\nItems:"
+    resultStr += "\n*Description* - #{content.___description}"
+    resultStr += "\n*Contact* - #{content.___contact}"
+    resultStr += "\n*Items:*"
     resultStr += "\n#{index+1}. #{value}" for value, index in content.___items
     return resultStr
 
@@ -179,17 +190,18 @@ class Pandora
     return newInstance
 
   commands: ->
-    commands_str += "\nls (-v|-verbose)? <path?> - View all boxes and contents in provided path. If no paths are provided, the top level boxes and contents are shown. Adding the -v/-verbose flag also shows the intros."
-    commands_str = "\nmkbox <path> <intro?> - Creates box and sets the intro, if provided."
-    commands_str += "\nmkcontent <path> <intro?> - Creates content and sets the intro, if provided."
-    commands_str += "\nrm <path> - Removes the box/content at the provided path."
-    commands_str += "\nmv <src> <dest> - Moves the box/content at src to dest. Use / as dest to move to the top level"
-    commands_str += "\ncp <src> <dest> - Copies the box/content at src to dest. User / as dest to copy to the top level"
-    commands_str += "\npandora (open|view|unbox|cat|show) <path> - View the information stored in the given path if path leads to content"
-    commands_str += "\npandora (intro|description|contact) <path> <string> - Changes the intro, description (content Only) or contact (content only) of the element found in the given path to the given string."
-    commands_str += "\npandora add <path> <string> - Appends given string to given content's items."
-    commands_str += "\npandora remove <item #> <path> - Removes the target item from content."
-    commands_str += "\npandora edit <item #> <path> <string> - Change the targetted item to the given string."
+    commands_str = ''
+    commands_str += "\n#{@robot.name} pandora ls (-v|-verbose)? <path?> - View all boxes and contents in provided path. If no paths are provided, the top level boxes and contents are shown. Adding the -v/-verbose flag also shows the intros."
+    commands_str += "\n#{@robot.name} pandora mkbox <path> <intro?> - Creates box and sets the intro, if provided."
+    commands_str += "\n#{@robot.name} pandora mkcontent <path> <intro?> - Creates content and sets the intro, if provided."
+    commands_str += "\n#{@robot.name} pandora rm <path> - Removes the box/content at the provided path."
+    commands_str += "\n#{@robot.name} pandora mv <src> <dest> - Moves the box/content at src to dest. Use / as dest to move to the top level"
+    commands_str += "\n#{@robot.name} pandora cp <src> <dest> - Copies the box/content at src to dest. User / as dest to copy to the top level"
+    commands_str += "\n#{@robot.name} pandora (open|view|unbox|cat|show) <path> - View the information stored in the given path if path leads to content"
+    commands_str += "\n#{@robot.name} pandora (intro|description|contact) <path> <string> - Changes the intro, description (content Only) or contact (content only) of the element found in the given path to the given string."
+    commands_str += "\n#{@robot.name} pandora add <path> <string> - Appends given string to given content's items."
+    commands_str += "\n#{@robot.name} pandora remove <item #> <path> - Removes the target item from content."
+    commands_str += "\n#{@robot.name} pandora edit <item #> <path> <string> - Change the targetted item to the given string."
     return commands_str
 
 class Box
@@ -210,57 +222,57 @@ module.exports = (robot) ->
   String::startsWith ?= (s) -> @[...s.length] is s
   pandora = new Pandora robot
 
-  robot.hear /^ls( -v| -verbose)?( .+)?/i, (res) ->
+  robot.respond /\bpandora ls( -v| -verbose)?( .+)?/i, (res) ->
     box = pandora.travelPath(res.match[2])
     if (box?)
       response_str = ""
       sortedKeys = Object.keys(box).sort()
       for key in sortedKeys
         if !key.startsWith('___')
-          response_str += "\n#{key} (#{box[key].___class})"
+          response_str += "\n*#{key} (#{box[key].___class})*"
           if (res.match[1]?)
             response_str += " - #{box[key].___intro}"
       res.send response_str
     else
       res.send "Path does not lead to a box"
 
-  robot.hear /^mkbox ([\w\/-]+)( .+)?$/i, (res) ->
+  robot.respond /\bpandora mkbox ([\w\/-]+)( .+)?$/i, (res) ->
     res.send pandora.newElement res.match[1], res.match[2], 'Box'
 
-  robot.hear /^mkcontent ([\w\/-]+)( .+)?$/i, (res) ->
+  robot.respond /\bpandora mkcontent ([\w\/-]+)( .+)?$/i, (res) ->
     res.send pandora.newElement res.match[1], res.match[2], 'Content'
 
-  robot.hear /^rm ([\w\/-]+)$/i, (res) ->
+  robot.respond /\bpandora rm ([\w\/-]+)$/i, (res) ->
     path = res.match[1]
     res.send pandora.delete path
 
-  robot.hear /^mv ([\w\/-]+) ([\w\/-]+)$/i, (res) ->
+  robot.respond /\bpandora mv ([\w\/-]+) ([\w\/-]+)$/i, (res) ->
     res.send pandora.transfer res.match[1], res.match[2], 'move'
 
-  robot.hear /^cp ([\w\/-]+) ([\w\/-]+)$/i, (res) ->
+  robot.respond /\bpandora cp ([\w\/-]+) ([\w\/-]+)$/i, (res) ->
     res.send pandora.transfer res.match[1], res.match[2], 'copy'
 
-  robot.hear /^pandora intro ([\w\/-]+) (.+)$/i, (res) ->
+  robot.respond /\bpandora intro ([\w\/-]+) (.+)$/i, (res) ->
     res.send pandora.change res.match[1], '___intro',res.match[2]
 
-  robot.hear /^pandora description ([\w\/-]+) (.+)$/i, (res) ->
+  robot.respond /\bpandora description ([\w\/-]+) (.+)$/i, (res) ->
     res.send pandora.changeContent res.match[1], '___description', res.match[2]
 
-  robot.hear /^pandora contact ([\w\/-]+) (.+)$/i, (res) ->
+  robot.respond /\bpandora contact ([\w\/-]+) (.+)$/i, (res) ->
     res.send pandora.changeContent res.match[1], '___contact',res.match[2]
 
-  robot.hear /^pandora( open| view| unbox| cat| show) ([\w\/-]+)$/i, (res) ->
+  robot.respond /\bpandora( open| view| unbox| cat| show) ([\w\/-]+)$/i, (res) ->
     res.send pandora.showContent res.match[2]
 
-  robot.hear /^pandora add ([\w\/-]+) (.+)$/i, (res) ->
+  robot.respond /\bpandora add ([\w\/-]+) (.+)$/i, (res) ->
     res.send pandora.itemAction res.match[1], res.match[2], undefined, 'add'
 
-  robot.hear /^pandora remove (\d+) ([\w\/-]+)$/i, (res) ->
+  robot.respond /\bpandora remove (\d+) ([\w\/-]+)$/i, (res) ->
     res.send pandora.itemAction res.match[2], undefined, res.match[1] - 1, 'remove'
 
-  robot.hear /^pandora edit (\d+) ([\w\/-]+) (.+)$/i, (res) ->
+  robot.respond /\bpandora edit (\d+) ([\w\/-]+) (.+)$/i, (res) ->
     res.send pandora.itemAction res.match[2], res.match[3], res.match[1] - 1, 'edit'
 
-  robot.hear /^pandora help$/i, (res) ->
+  robot.respond /pandora help$/i, (res) ->
     res.send pandora.commands()
 

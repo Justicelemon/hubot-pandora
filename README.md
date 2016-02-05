@@ -21,16 +21,16 @@ Then add **hubot-pandora** to your `external-scripts.json`:
 ## Commands
 
 ```
-pandora help - view list of commands
-ls (-v|-verbose)? <path?> - View all boxes and contents path
-mkbox <path> <intro?> - Creates box and sets the intro (if provided)
-mkcontent <path> <intro?> - Creates content and sets the intro (if provided)
-rm <path> - Removes the box/content at the provided path
-mv <src> <dest> - Moves the box/content at src to dest. Use / as dest to move to the top level
-cp <src> <dest> - Copies the box/content at src to dest. User / as dest to copy to the top level
-pandora (open|view|unbox|cat|show) <path> - View the information stored in the given path if path leads to content
-pandora (intro|description|contact) <path> <string> - Changes the intro, description or contact of the element found in the given path to the given string
-pandora add <path> <string> - Appends given string to given content's items
-pandora remove <item #> <path> - Removes the target item from content
-pandora edit <item #> <path> <string> - Change the targetted item to the given string
+hubot pandora help - view a more verbose description all available commands
+hubot pandora ls <path> - to view all elements in path
+hubot pandora mkbox <path> - to create box in path
+hubot pandora mkcontent <path> - to create content in path
+hubot pandora rm <path> - remove box/content
+hubot pandora mv <src> <test> - move the box/content
+hubot pandora cp <src> <test> - copy the box/content
+hubot pandora open <path-to-content> - view information stored in content
+hubot pandora (intro|view|contact) <path> <string> - edits the specified attribute to the given string
+hubot pandora add <path-to-content> <string> - adds given string as an item to the given content
+hubot pandora edit <item #> <path-to-content> <string> - edits item
+hubot pandora remove <item #> <path-to-content> - removes given item, and changes all higher item numbers
 ```
